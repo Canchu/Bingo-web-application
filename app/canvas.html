@@ -2,15 +2,17 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<title>jQuery Mobile Bootstrap Theme</title>
+		<title>ID Enter</title>
 		<link rel="stylesheet" href="styles/jquery-mobile.css">
 		<script type="text/javascript" src="scripts/libs/jquery.js"></script>
    	<script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
   	<script data-main="scripts/main" src="scripts/libs/require.js"></script>
   	<script type ="text/javascript">
        var storage = localStorage;
-  		 var Card =[];
-             
+  		 var Card    =[];
+       var CardWidth = 130;
+       var CardHeight = 150;
+       
        $( function() {  
             getObjects();
             CheckBingo();
@@ -29,19 +31,18 @@
           var ctx = canvas.getContext('2d');
           var imageData = new Array(); 
               for(var i=0; i<localStorage.length; i++){
-                imageData[i] = ctx.createImageData(130,130);
+                imageData[i] = ctx.createImageData(CardWidth,CardHeight);
                 for (var j=0; j<imageData[i].width*imageData[i].height*4; j+=4){
                   imageData[i].data[j+0] = 0;
                   imageData[i].data[j+1] = 0;
                   imageData[i].data[j+2] = 255;
                   imageData[i].data[j+3] = 255;
                 }
-                 ctx.putImageData(imageData[i],10+(i%3)*140,10+Math.floor(i/3)*140);
+                 ctx.putImageData(imageData[i],10+(i%3)*(CardWidth+10),10+Math.floor(i/3)*(CardHeight+10));
               }
         }
 
       var img = new Array();
-
       function drawNumber(){
           var canvas = document.getElementById('canvas');
              if(!canvas || !canvas.getContext){
@@ -52,14 +53,18 @@
                 img[i] = new Image();
                 img[i].src = ("images/"+ i +".png");
           }
-        
+
+          ctx.font = "20px 'ＭＳ Ｐゴシック'";
+          for(var i=0; i<localStorage.length; i++){
+                ctx.fillText("ID:"+String(Card[i].data[0][5]),60+(i%3)*(CardWidth),30+Math.floor(i/3)*(CardHeight+6));
+          }
           img[74].onload=function(){
-              ctx.scale(0.1,0.1);
+             ctx.scale(0.1,0.1);
               for(var i=0; i<localStorage.length; i++){
                 for(var j=0; j<5; j++){
                   for(var k=0; k<5; k++){
                     num =Card[i].data[j][k];
-                    ctx.drawImage(img[num],150+k*250+1400*(i%3),200+j*240+Math.floor(i/3)*1400);
+                     ctx.drawImage(img[num],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%3),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/3)*(CardHeight*10+100));
                   }
                 }
               }
@@ -72,18 +77,32 @@
                 Card[i] = new Object();
                 Card[i].data = JSON.parse(localStorage.getItem(_key));
             }
+            Sort();
+      }
 
-            for(var i=0; i<localStorage.length; i++){
-              console.log("CardID:"+Card[i].data[0][5]);
-              for(var j=0; j<5; j++){
-                for(var k=0; k<5; k++){
-                  console.log(Card[i].data[j][k]);
-                }
-              }
+      function Sort(){//Using Bubble Sort
+        var length = localStorage.length;
+        var tmp;
+        var swap_time = 0;
+
+        for(var i=0; i<length; i++){
+          for(var j=0; j<length-1-i; j++){
+            if(parseInt(Card[j].data[0][5]) > parseInt(Card[j+1].data[0][5])){
+              console.log(Card[j].data[0][5]);
+              console.log(Card[j+1].data[0][5]);
+              tmp = Card[j+1].data;
+              Card[j+1].data = Card[j].data;
+              Card[j].data   = tmp; 
+              swap_time++;
             }
           }
+          if(swap_time == 0){
+            break;
+          }
+        }
+      }
 
-          function TurnBlack(){
+      function TurnBlack(){
               var canvas = document.getElementById('canvas');
              if(!canvas || !canvas.getContext){
                 return false;
@@ -94,7 +113,8 @@
                   for(var k=0; k<5; k++){
                     if(Card[i].data[j][k] == parseInt(document.bingo.num.value)){
                       Card[i].data[j][k] = 0;
-                      ctx.drawImage(img[0],150+k*250+1400*(i%3),200+j*240+Math.floor(i/3)*1400);
+                      ctx.drawImage(img[0],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%3),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/3)*(CardHeight*10+100));
+                      break;
                     }
                   }
                 }
@@ -109,7 +129,6 @@
                 }
               }
             }
-
           }
 
           var Yokocount =0;
@@ -202,6 +221,20 @@
         storage.setItem(key, json_value);
     }
   }
+
+  var Value = new Array(5);
+  var count = 0;
+  function Return(){
+    if(count > 0){
+      for(var i=0; i<Value.length; i++){
+
+      }
+    }
+    else{
+      alert("もう戻れません！");
+    }
+  }
+
 	</script>
 	</head>
 	<body>
@@ -210,21 +243,23 @@
       <div data-role="header">
       	 <h1>カード一覧</h1>
         　<a href ="localStorage.html" rel="external" onclick="SaveStorage()">ID入力</a>
+         <a href ="about.html" rel="external" class="ui-btn-right" data-icon="info">About</a>
       </div>
       
       <div data-role="content" class="ui-content">
 		<canvas id ="canvas" width="500" height="1000">
 			Canvasに対応したブラウザを使って下さい。
 		</canvas>
-    <form name="bingo">
-    値：<input type="text" name="num" size="2" data-mini="true">
-    <input type= "button" data-inline="true" onclick="TurnBlack()" data-icon="star" value="Bingo!">
-    </form>
+ 
 	  </div>
 
-	   <div data-role="footer">
-      	 <p>CopyRight:Fukushi-Lab.</p>
-          <a href ="about.html" rel="external" class="ui-btn-right" data-icon="info">About This</a>
+	   <div data-role="footer" data-position ="fixed">
+     <form name="bingo" data-mini="true">
+      値：<input type="number" name="num" size="2">
+        <input type= "button" onclick="TurnBlack()" data-inline="true"ui-data-icon="star" value="Bingo!">
+        <input type= "button" onclick="Return()" data-inline="true"ui-data-icon="star" value="Return">
+     </form>
+
       </div>
 
 	 </div>
