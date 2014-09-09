@@ -7,16 +7,18 @@
     <script type="text/javascript" src="scripts/libs/jquery.js"></script>
     <script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
     <script data-main="scripts/main" src="scripts/libs/require.js"></script>
- </head>
- 
- <body>
-　　<div data-role="page" id="localStorage" data-title ="ビンゴカードID入力">
      <script type="text/javascript">
     
       $(function(){
         //ページを開いたら自動で現在のIDと内容を確認する
         load();
       });
+   
+    $(document).on("#page","pageshow",function(){
+        $("#save").on("tap",setlocalStorage);
+        $("#delete").on("tap",removeStorage);
+        $("#alldelete").on("tap",removeallStorage);
+    });
 
       if (typeof localStorage == 'undefined') {
         document.write("<p>お使いのブラウザではWeb Storageが使えません。</p>");
@@ -29,8 +31,7 @@
      function setlocalStorage() {
         var key1 = document.getElementById("textkey1").value;
      　  var key2 = document.getElementById("textkey2").value;
-        var string = document.getElementById("textdata").value;
-        
+        var string = document.getElementById("textdata").value;    
        
         if(key1 == "" && key2 != ""){
           Createobj(key2,string);
@@ -50,6 +51,7 @@
           }
         }
         viewStorage();
+        $.mobile.loadPage("localStorage.html");
     }
 
     function Createobj(key,string){
@@ -89,11 +91,13 @@
       key = "";
       alert("ID"+key+"番のカードを削除しました。")
       viewStorage();
+      $.mobile.loadPage("localStorage.html");
     }
 
     function removeallStorage() {
       storage.clear();
       viewStorage();
+      $.mobile.loadPage("localStorage.html");
     }
 
 
@@ -117,7 +121,7 @@
 
     function load() {
       var list = document.getElementById("list");
-      while (list.firstChild) list.removeChild(list.firstChild);
+     while (list.firstChild) list.removeChild(list.firstChild);
         for (var i=0; i < localStorage.length; i++) {
           var _key = localStorage.key(i);
           var td  = document.createElement("td");
@@ -130,36 +134,50 @@
           //td2.innerHTML = localStorage.getItem(_key);
       }    
     }
-    
     </script>
-    <div data-role="header">
+  </head>
+  <body>
+    <div data-role="page" id="page">
+      <div data-role="header">
         <h1>ビンゴカードID入力</h1>
         <a href ="canvas.html"  rel="external">カード一覧</a>
-         <a href ="about.html" class="ui-btn-right" data-icon="info">About</a>
-    </div>
-  
-    <div data-role="contents" class="ui-content">
-            <p>ID：<input id="textkey1" size="5" type="number">
-            <p>～ID：<input id="textkey2" size="5" type="number">
-            値：<input id="textdata" type="text" /></p>
-            <p align="left">
-            <button  class="ui-btn" id="button" data-inline="true" onclick="setlocalStorage()">保存</button>
-            <p>削除ID：<input id="deltextkey" type="number" data-inline="true">
-            <button id="button" data-inline="true" onclick="removeStorage()">削除</button>
-            <button id="button" data-inline="true" onclick="removeallStorage()">全て削除</button></p>
-          <h4>入力履歴</h4>
-          <table class="tagForList2">
-          <tr>
-          <th>ID </th>
-          </tr>
-          <tbody id="list">
-          </tbody>
+        <a href ="about.html" class="ui-btn-right" data-icon="info">About</a>
+      </div>
+
+      <div data-role="content" class="ui-content">
+        <p>ID：<input id="textkey1" size="5" type="number">
+        <p>～ID：<input id="textkey2" size="5" type="number">
+        値：<input id="textdata" type="text" /></p>
+        <p align="left">
+        <a href="#dialog" id ="save" data-role="button" data-rel="dialog" data-transition="pop"  data-inline="true" >保存</a>
+        <p>削除ID：<input id="deltextkey" type="number" data-inline="true">
+        <a href="#" id="delete" data-role="button" data-inline="true">削除</a>
+        <a href="#" id="alldelete" data-role="button" data-inline="true">全て削除</a></p>
+       <h4>入力履歴</h4>
+        <table class="tagForList2">
+        <tr>
+        <th>ID </th>
+        </tr>
+        <tbody id="list">
+        </tbody>
         </table>
-      
-    </div>
-    <div data-role="footer">
-         <p>CopyRight:Fukushi-Lab.</p>
-    </div>
-  </div>  
+      </div>
+
+      <div data-role="footer">
+       <p>CopyRight:Fukushi-Lab.</p>
+      </div>
+  </div>
+
+   <div data-role="page" id="dialog">
+        <div data-role="header">
+          <h3>確認</h3>
+        </div>
+        <div  data-role="content" class="ui-content">
+         <p id="attention"></p><!--○番のカードを登録します-->
+         <p>この並びで、間違いないですか？間違えがあれば、お手数ですが、修正欄に修正したい数字を入れ、修正後欄に正しい数字を入力して、「修正」ボタンを押してください</p>
+         <a href="#" id="save" data-role="button" class="ui-btn ui-btn-inline">OK</a>
+         <a href="#" data-role="button" data-rel="back" class="ui-btn ui-btn-inline">閉じる</a>
+        </div>
+  </div>
  </body> 
 </html>
