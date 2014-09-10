@@ -16,7 +16,13 @@
        $( function() {  
             getObjects();
             CheckBingo();
-           });
+        });
+
+        $(document).on("pageshow",function(){
+          $("#bingo").on("tap",TurnBlack);
+          $("#return").on("tap",Return);
+        });
+
 
         window.onload = function(){
           draw();
@@ -249,37 +255,28 @@
         storage.setItem(key, json_value);
     }
   }
-
-
 	</script>
 	</head>
 	<body>
-
 	<div data-role="page"　id="home"　>
       <div data-role="header">
       	 <h1>カード一覧</h1>
-        　<a href ="localStorage.html"  onclick="SaveStorage()">ID入力</a>
+        　<a href ="localStorage.html" rel="external" onclick="SaveStorage()">ID入力</a>
          <a href ="about.html" class="ui-btn-right" data-icon="info">About</a>
       </div>
       
       <div data-role="content" class="ui-content">
-		<canvas id ="canvas" width="500" height="5500">
-			Canvasに対応したブラウザを使って下さい。
-		</canvas>
- 
-	  </div>
-
+		    <canvas id ="canvas" width="500" height="5500">
+			   Canvasに対応したブラウザを使って下さい。
+		    </canvas>
+	   </div>
 	   <div data-role="footer" data-position ="fixed">
-     <form name="bingo" data-mini="true">
-      値：<input type="number" name="num" size="2">
-        <input type= "button" onclick="TurnBlack()" data-inline="true"ui-data-icon="star" value="Bingo!">
-        <input type= "button" onclick="Return()" data-inline="true"ui-data-icon="star" value="Return">
-     </form>
-
-      </div>
-
-	 </div>
-
-	
+      <form name="bingo" data-mini="true">
+        値：<input type="number" name="num" size="2">
+        <a href="#" id="bingo" data-role="button" data-inline="true"　ui-data-icon="star">Bingo!</a>
+        <a href="#" id="return" data-role="button" data-inline="true">1つ戻る</a>
+      </form>
+    </div>
+ </div>
 	</body>
 </html>

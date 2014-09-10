@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="styles/jquery-mobile.css">
     <script type="text/javascript" src="scripts/libs/jquery.js"></script>
     <script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
-    <script data-main="scripts/main" src="scripts/libs/require.js"></script>
+    <!--<script data-main="scripts/main" src="scripts/libs/require.js"></script> これがあるとなぜかポップアップが表示されない-->
      <script type="text/javascript">
     
       $(function(){
@@ -14,10 +14,12 @@
         load();
       });
    
-    $(document).on("#page","pageshow",function(){
-        $("#save").on("tap",setlocalStorage);
+    $(document).on("pageshow",function(){
+        $("#save").on("tap",PushlocalStrg);
         $("#delete").on("tap",removeStorage);
         $("#alldelete").on("tap",removeallStorage);
+        $("#pop").on("tap",attention);
+        $("#definemod").on("tap",modify);
     });
 
       if (typeof localStorage == 'undefined') {
@@ -27,81 +29,20 @@
         //セッションストレージ設定
         var storage = localStorage;
       }
-
-     function setlocalStorage() {
-        var key1 = document.getElementById("textkey1").value;
-     　  var key2 = document.getElementById("textkey2").value;
-        var string = document.getElementById("textdata").value;    
-       
-        if(key1 == "" && key2 != ""){
-          Createobj(key2,string);
-        }
-        else if(key1 != "" && key2 == ""){
-          Createobj(key1,string);
-        }
-        else{
-          if(parseInt(key1)>parseInt(key2)){
-            var tmp = key1;
-            key1 = key2;
-            key2 = tmp;
-          }
-          for(var i=parseInt(key1); i<=parseInt(key2); i++){
-            console.log("hoi");
-            Createobj(String(i),string);
-          }
-        }
-        viewStorage();
-        $.mobile.loadPage("localStorage.html");
-    }
-
-    function Createobj(key,string){
-          var stringData = string.split(',');
-          var intData = [
-                      [0,0,0,0,0,key],
-                      [0,0,0,0,0,0],
-                      [0,0,0,0,0,0],
-                      [0,0,0,0,0,0],
-                      [0,0,0,0,0,0],
-          ];
-          card = new Object();
-          var l = 0;
-          for(var j=0; j<5; j++){
-            for(var k=0; k<5; k++){
-              if(j==2 && k==2){}
-              else{
-                intData[j][k] = parseInt(stringData[l]);
-                l++;
-              }
-            }
-          }
-          PushlocalStrg(intData);
-    }
-
-    function PushlocalStrg(intData){
-        var key = intData[0][5];
-          //valueをJSONへ変換
-        var json_value = JSON.stringify(intData);
-        storage.setItem(key, json_value);
-        alert("ID"+key+"番のカードを登録しました。")
-    }
-
+    
     function removeStorage() {
       var key = document.getElementById("deltextkey").value;
       storage.removeItem(key);
       key = "";
       alert("ID"+key+"番のカードを削除しました。")
       viewStorage();
-      $.mobile.loadPage("localStorage.html");
     }
 
     function removeallStorage() {
       storage.clear();
       viewStorage();
-      $.mobile.loadPage("localStorage.html");
     }
 
-
-  
     function viewStorage() {
       var list = document.getElementById("list")
       while (list.firstChild) list.removeChild(list.firstChild);
@@ -134,6 +75,125 @@
           //td2.innerHTML = localStorage.getItem(_key);
       }    
     }
+
+    var img = new Array();
+    var id1;
+    var id2;
+    var Card = [];
+    function attention(){
+      var canvas = document.getElementById("popcanvas");
+      if(!canvas || !canvas.getContext){
+                return false;
+      }
+      var ctx = canvas.getContext('2d');
+
+      for(var i=0; i<75; i++){
+            img[i] = new Image();
+            img[i].src = ("images/"+ i +".png");
+      }
+
+      var key1 = document.getElementById("textkey1").value;
+     　var key2 = document.getElementById("textkey2").value;
+      var numbers = document.getElementById("textdata").value;
+      id1 = parseInt(key1);
+      id2 = parseInt(key2);
+
+      if(key1 == "" && key2 != ""){
+            id1 = id2;
+      }
+      else if(key1 != "" && key2 == ""){
+            id2 = id1;
+      }
+      else{
+          if(id1>id2){
+            var tmp = id1;
+            id1 = id2;
+            id2 = tmp;
+          }
+      }
+      
+      canvas.width = 500;
+      canvas.height= 180*( (id2-id1)%3+1);
+   
+      ctx.font = "20px 'ＭＳ Ｐゴシック'";
+      for(var i=0; i<=id2-id1; i++){
+          Card[i] = new Object;
+          var stringData = numbers.split(',');
+          var intData = [
+                      [0,0,0,0,0,id1+i],
+                      [0,0,0,0,0,0],
+                      [0,0,0,0,0,0],
+                      [0,0,0,0,0,0],
+                      [0,0,0,0,0,0],
+              ];
+          var l = 0;
+          for(var j=0; j<5; j++){
+            for(var k=0; k<5; k++){
+              if(j==2 && k==2){}
+              else{
+                intData[j][k] = parseInt(stringData[l]);
+                l++;
+              }
+            }
+          }
+          Card[i].data = intData;
+          ctx.fillStyle="blue";
+          ctx.fillRect((i%3)*140,Math.floor(i/3)*180,130,150);
+          ctx.fillStyle="black";
+          ctx.fillText("ID:"+String(Card[i].data[0][5]),30+(i%3)*130,20+10*Math.floor(i/3)+Math.floor(i/3)*170);
+      }
+        
+       img[74].onload=function(){
+             ctx.scale(0.1,0.1);
+              for(var i=0; i<=id2-id1; i++){
+                for(var j=0; j<5; j++){
+                  for(var k=0; k<5; k++){
+                    var num =Card[i].data[j][k];
+                     ctx.drawImage(img[num],(50)+k*(250)+(130*10+100)*(i%3),(100+230)+j*(100+110)+Math.floor(i/3)*(170*10+100));
+                  }
+                }
+              }
+        }
+    }
+
+     function modify(){
+       var canvas = document.getElementById("popcanvas");
+       if(!canvas || !canvas.getContext){
+                return false;
+       }
+        var ctx = canvas.getContext('2d');
+        var cardid = parseInt(document.getElementById("modifyid").value);
+     　  var before = parseInt(document.getElementById("modify").value);
+        var after  = parseInt(document.getElementById("correct").value);
+
+        if(cardid >id2 || cardid<id1){
+          alert("そのIDのカードはありません");
+        }
+        else{
+         cardid = cardid-id1;
+          for(var j=0; j<5; j++){
+              for(var k=0; k<5; k++){
+                  if(Card[cardid].data[j][k] == before){
+                      Card[cardid].data[j][k] = after;
+                      ctx.drawImage(img[after],(50)+k*(250)+(130*10+100)*((cardid)%3),(100+230)+j*(100+110)+Math.floor((cardid)/3)*(170*10+100));
+                      break;
+                      break;
+                  }
+              }
+          }
+        }
+     }
+
+    function PushlocalStrg(){
+        for(var i=0; i<=id2-id1; i++){
+          var key = Card[i].data[0][5];
+          //valueをJSONへ変換
+          var json_value = JSON.stringify(Card[i].data);
+          storage.setItem(key, json_value);
+          alert("ID"+key+"番のカードを登録しました。")
+        }
+    }
+
     </script>
   </head>
   <body>
@@ -145,15 +205,17 @@
       </div>
 
       <div data-role="content" class="ui-content">
-        <p>ID：<input id="textkey1" size="5" type="number">
-        <p>～ID：<input id="textkey2" size="5" type="number">
-        値：<input id="textdata" type="text" /></p>
-        <p align="left">
-        <a href="#dialog" id ="save" data-role="button" data-rel="dialog" data-transition="pop"  data-inline="true" >保存</a>
-        <p>削除ID：<input id="deltextkey" type="number" data-inline="true">
-        <a href="#" id="delete" data-role="button" data-inline="true">削除</a>
-        <a href="#" id="alldelete" data-role="button" data-inline="true">全て削除</a></p>
-       <h4>入力履歴</h4>
+        <form name="id" data-mini="true">
+         <p>ID：<input id="textkey1" size="5" type="number">
+         <p>～ID：<input id="textkey2" size="5" type="number">
+         値：<input id="textdata" type="text" /></p>
+         <p align="left">
+         <a href="#popup" id ="pop" data-role="button"  data-rel="popup" data-transition="slidedown"  data-inline="true" >保存</a>
+         <p>削除ID：<input id="deltextkey" type="number" data-inline="true">
+         <a href="#" id="delete" data-role="button" data-inline="true">削除</a>
+         <a href="#" id="alldelete" data-role="button" data-inline="true">全て削除</a></p>
+        </form>
+      <h4>入力履歴</h4>
         <table class="tagForList2">
         <tr>
         <th>ID </th>
@@ -163,21 +225,31 @@
         </table>
       </div>
 
-      <div data-role="footer">
+      <div data-role="popup" id="popup" data-dismissible="false">
+          <div data-role="header">
+          <h3>確認</h3>
+          </div>
+          <div  data-role="content" class="ui-content">
+           <p>この並びで、間違いないですか？</p>
+           <p>間違えがあれば、お手数ですが、「修正カードID」に修正したいカードのIDを、「修正前」に修正したい数字を、「修正後」に正しい数字を入力して、修正ボタンを押してください</p>
+           <canvas id ="popcanvas">
+            Canvasに対応したブラウザを使って下さい。
+           </canvas>
+           修正カードID：<input id="modifyid" type="number" data-inline="true">
+            修正前：<input id="modify" type="number" data-inline="true">
+            修正後：<input id="correct" type="number" data-inline="true">
+            <a href="#" id="definemod" data-role="button" class="ui-btn-inline">修正</a>
+            <a href="localStorage.html"  rel="external" id="save" data-role="button" class="ui-btn-inline">OK</a>
+            <a href="localStorage.html" rel="external" id="back" data-role="button" class="ui-btn-inline">閉じる</a>
+         </div>
+      </div>
+
+      <div data-role="footer" >
        <p>CopyRight:Fukushi-Lab.</p>
       </div>
   </div>
 
-   <div data-role="page" id="dialog">
-        <div data-role="header">
-          <h3>確認</h3>
-        </div>
-        <div  data-role="content" class="ui-content">
-         <p id="attention"></p><!--○番のカードを登録します-->
-         <p>この並びで、間違いないですか？間違えがあれば、お手数ですが、修正欄に修正したい数字を入れ、修正後欄に正しい数字を入力して、「修正」ボタンを押してください</p>
-         <a href="#" id="save" data-role="button" class="ui-btn ui-btn-inline">OK</a>
-         <a href="#" data-role="button" data-rel="back" class="ui-btn ui-btn-inline">閉じる</a>
-        </div>
+  
   </div>
  </body> 
 </html>
