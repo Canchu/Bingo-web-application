@@ -45,11 +45,11 @@
 
     function viewStorage(){
       $('#list').empty();
-      for(var i = 0; i < storage.length; ){
+      for(var i = 0; i < storage.length-1; ){
         $('#list').append('<tr>');
         for(var j = 0; j < 10/* ←列数 */ && i < storage.length; i++, j++){
-        var _key = storage.key(i);
-        $('#list:last').append('<td style="width:40px; text-align:right;">' + _key + '</td>');
+          var _key = storage.key(i);
+            $('#list:last').append('<td style="width:40px; text-align:right;">' + _key + '</td>');
         }
         $('#list').append('</tr>');
       }
@@ -186,6 +186,8 @@
           storage.setItem(key, json_value);
           alert("ID"+key+"番のカードを登録しました。")
         }
+        var history = new Array();
+        storage.setItem("history",JSON.stringify(history));
     }
 
     </script>
