@@ -6,11 +6,13 @@
 		<link rel="stylesheet" href="styles/jquery-mobile.css">
 		<script type="text/javascript" src="scripts/libs/jquery.js"></script>
    	<script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
-  	<script data-main="scripts/main" src="scripts/libs/require.js"></script>
+  	<!--<script data-main="scripts/main" src="scripts/libs/require.js"></script>-->
   	<script type ="text/javascript">
        var storage = localStorage;
-  		 var Card    =[];
-       var CardWidth = 130;
+  		 var Card    = [];
+       var reach   = [];
+       var bingo   = [];
+       var CardWidth  = 130;
        var CardHeight = 150;
        
        $( function() {  
@@ -18,38 +20,69 @@
             CheckBingo();
         });
 
+
         $(document).on("pageshow",function(){
           $("#bingo").on("tap",TurnBlack);
           $("#return").on("tap",Return);
         });
 
-
         window.onload = function(){
           draw();
-          drawNumber();
+          //drawNumber();
         }
         
+        var imageData = new Array(); 
         function draw(){
           var canvas = document.getElementById('canvas');
-             if(!canvas || !canvas.getContext){
+          if(!canvas || !canvas.getContext){
                 return false;
-              }
+          }
           var ctx = canvas.getContext('2d');
-          var imageData = new Array(); 
-              for(var i=0; i<localStorage.length; i++){
+          for(var i=0; i<localStorage.length; i++){
                 imageData[i] = ctx.createImageData(CardWidth,CardHeight);
-                for (var j=0; j<imageData[i].width*imageData[i].height*4; j+=4){
-                  imageData[i].data[j+0] = 0;
-                  imageData[i].data[j+1] = 0;
-                  imageData[i].data[j+2] = 255;
-                  imageData[i].data[j+3] = 255;
-                }
-                 ctx.putImageData(imageData[i],10+(i%3)*(CardWidth+10),10+Math.floor(i/3)*(CardHeight+10));
-              }
+          }
+
+          drawColor();
         }
 
+       function drawColor(){
+          var canvas = document.getElementById('canvas');
+          if(!canvas || !canvas.getContext){
+                return false;
+          }
+          var ctx = canvas.getContext('2d');
+
+         for(var i=0; i<localStorage.length; i++){
+                for (var j=0; j<imageData[i].width*imageData[i].height*4; j+=4){
+                  if(reach[i]==2){
+                   imageData[i].data[j+0] = 255;
+                   imageData[i].data[j+1] = 0;
+                   imageData[i].data[j+2] = 0;
+                   imageData[i].data[j+3] = 255;
+                  }
+                  else if(reach[i]==0){
+                    imageData[i].data[j+0] = 0;
+                    imageData[i].data[j+1] = 0;
+                    imageData[i].data[j+2] = 255;
+                    imageData[i].data[j+3] = 255;
+                  }
+                  else if(reach[i]==1){
+                    imageData[i].data[j+0] = 255;
+                    imageData[i].data[j+1] = 255;
+                    imageData[i].data[j+2] = 0;
+                    imageData[i].data[j+3] = 255;
+                  }
+                }
+              ctx.putImageData(imageData[i],10+(i%3)*(CardWidth+10),10+Math.floor(i/3)*(CardHeight+10));  
+         }
+
+         drawNumber();
+       }
+
+      var c = 0;
       var img = new Array();
       function drawNumber(){
+          c++;
           var canvas = document.getElementById('canvas');
              if(!canvas || !canvas.getContext){
                 return false;
@@ -60,27 +93,36 @@
                 img[i].src = ("images/"+ i +".png");
           }
 
-          ctx.font = "20px 'ＭＳ Ｐゴシック'";
-          for(var i=0; i<localStorage.length; i++){
-                ctx.fillText("ID:"+String(Card[i].data[0][5]),40+(i%3)*(CardWidth),30+10*Math.floor(i/3)+Math.floor(i/3)*(CardHeight));
+          if(c==1){
+            ctx.scale(0.1,0.1);
           }
           img[74].onload=function(){
-             ctx.scale(0.1,0.1);
               for(var i=0; i<localStorage.length; i++){
                 for(var j=0; j<5; j++){
                   for(var k=0; k<5; k++){
                     num =Card[i].data[j][k];
+                    if(num < 100){
                      ctx.drawImage(img[num],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%3),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/3)*(CardHeight*10+100));
+                   }
+                   else{
+                       ctx.drawImage(img[0],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%3),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/3)*(CardHeight*10+100));
+                   }
                   }
                 }
               }
+          }
+          ctx.font = "200px 'ＭＳ Ｐゴシック'";
+          for(var i=0; i<localStorage.length; i++){
+            ctx.fillText("ID:"+String(Card[i].data[0][5]),400+(i%3)*(CardWidth)*10,300+100*Math.floor(i/3)+10*Math.floor(i/3)*(CardHeight));
           }
       }
 
       function getObjects() {
             for (var i=0; i < localStorage.length; i++) {
                 var _key = localStorage.key(i);
-                Card[i] = new Object();
+                reach[i] = 0;
+                bingo[i] = 0;
+                Card[i]  = new Object();
                 Card[i].data = JSON.parse(localStorage.getItem(_key));
             }
             Sort();
@@ -112,7 +154,6 @@
       var Value_j = new Array();
       var Value_k = new Array();
       var Value;
-      var count;
       function TurnBlack(){
             var canvas = document.getElementById('canvas');
              if(!canvas || !canvas.getContext){
@@ -120,26 +161,20 @@
               }
               var ctx = canvas.getContext('2d');
               Value = parseInt(document.bingo.num.value);
-              Value_i = new Array();
-              Value_j = new Array();
-              Value_k = new Array();
               for(var i=0; i<localStorage.length; i++){
                 for(var j=0; j<5; j++){
                   for(var k=0; k<5; k++){
                     if(Card[i].data[j][k] == Value){
-                      Card[i].data[j][k] = 0;
+                      Card[i].data[j][k] +=100;
                       ctx.drawImage(img[0],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%3),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/3)*(CardHeight*10+100));
-                      Value_i.push(i);
-                      Value_j.push(j);
-                      Value_k.push(k);
-                      count = 0;
                       break;
                     }
                   }
                 }
-              }  
+              } 
             SaveStorage();
             CheckBingo();
+            drawColor();
       }
 
       function Return(){
@@ -147,104 +182,116 @@
         if(!canvas || !canvas.getContext){
             return false;
         }
-        console.log(Value);
         var ctx = canvas.getContext('2d');
-        if(count == 0){
-           for(var l=0; l<Value_i.length; l++){
-              Card[ Value_i[l] ].data[ Value_j[l] ][ Value_k[l] ] = Value;
-              ctx.drawImage(img[Value],(CardWidth+20)+Value_k[l]*(CardWidth+120)+(CardWidth*10+100)*(Value_i[l]%3),(CardHeight+160)+Value_j[l]*(CardHeight+110)+Math.floor(Value_i[l]/3)*(CardHeight*10+100));
-            }
+        for(var l=0; l<Value_i.length; l++){
+          Card[ Value_i[l] ].data[ Value_j[l] ][ Value_k[l] ] = Value;
+          ctx.drawImage(img[Value],(CardWidth+20)+Value_k[l]*(CardWidth+120)+(CardWidth*10+100)*(Value_i[l]%3),(CardHeight+160)+Value_j[l]*(CardHeight+110)+Math.floor(Value_i[l]/3)*(CardHeight*10+100));
         }
-        else{
-          alert("もう戻れません！");
-        }
-        Value_i = new Array();
-        Value_j = new Array();
-        Value_k = new Array();
-        count++;
         SaveStorage();
+        CheckBingo();
       }
 
           var Yokocount =0;
           var Tatecount =0;
           var Nanamecount1 =0;
           var Nanamecount2 =0;
-          function CheckBingo(){
+       function CheckBingo(){
             var i;
             var j;
             var k;
+
+            $('#display').empty();
             //横走査
-            for(i=0; i<localStorage.length; i++){
+        for(i=0; i<localStorage.length; i++){
+              var pbingo = 0, preach = 0;
               for(j=0; j<5; j++){
                 for(k=0; k<5; k++){
-                  if(Card[i].data[j][k] == 0){
+                  if(Card[i].data[j][k] >= 100){
                     Yokocount++;
                   }
                 }
               if( Yokocount == 5){
+                reach[i] = 2;
+                pbingo++;
                 console.log (i+"YokoBingo");
               }
-              else if(Yokocount == 4){
+              if(Yokocount == 4){
+                reach[i]=1;
+                preach++;
                 console.log (i+"YokoReach");
               }
              Yokocount = 0;
             }
-            Yokocount = 0;
-          }
-    
+            
         //縦走査
-          for(i=0; i<localStorage.length; i++){
             for(k=0; k<5; k++){
               for(j=0; j<5; j++){
-                if(Card[i].data[j][k] == 0){
+                if(Card[i].data[j][k] >= 100){
                   Tatecount++;
                 }
               }
               if( Tatecount == 5){
+                reach[i] = 2;
+                pbingo++;
                 console.log (i+"TateBingo");
               }
-              else if(Tatecount == 4){
+              if(Tatecount == 4){
+                reach[i] = 1;
+                preach++;
                 console.log (i+"TateReach");
               }
               Tatecount = 0;
             }
-          Tatecount = 0;
-          }
     
     //ななめ走査
-       for(i=0; i<localStorage.length; i++){
           for(j=0; j<5; j++){
-            if(Card[i].data[j][j] == 0){
+            if(Card[i].data[j][j] >= 100){
               Nanamecount1++;
             }
             if( Nanamecount1 == 5){
+              reach[i] = 2;
+              pbingo++;
               console.log (i+"NaNameBingo1");
             }
-            else if(Nanamecount1 == 4){
+            if(Nanamecount1 == 4){
+               reach[i] = 1;
+               preach++;
               console.log (i+"NaNameReach1");
             } 
           }
           Nanamecount1 = 0;
-      }
-    
-      for(i=0; i<localStorage.length; i++){
+
          for(j=0; j<5; j++){
             for(k=0; k<5; k++){
               if(j+k == 4){
-                if(Card[i].data[j][k] == 0){
+                if(Card[i].data[j][k] >= 100){
                   Nanamecount2++;
                 }
               }
             }
             if(Nanamecount2 == 5){
+              reach[i] = 2;
+              preach++;
               console.log (i+"NaNameBingo2");
             }
-            else if(Nanamecount2 == 4){
+            if(Nanamecount2 == 4){
+              reach[i] = 1;
+              pbingo++;
               console.log (i+"NaNameReach2");
             }
         }
         Nanamecount2 = 0;
-      } 
+
+        if(pbingo){
+          $('#display').append((i + 1) + '番目のカードに<span style="color:red; font-weight:bold;">ビンゴ</span>が' + pbingo + '個' + 'あります。<br>');
+        }
+        if(preach){
+          $('#display').append((i + 1) + '番目のカードに<span style="color:orange; font-weight:bold;">リーチ</span>が' + preach + '個' + 'あります。<br>');
+        }
+      }
+       if(!($('#display span').length)){
+         $('#display').append('ビンゴ・リーチはありません。<br>');
+       }
   }
 
   function SaveStorage(){
@@ -273,10 +320,20 @@
 	   <div data-role="footer" data-position ="fixed">
       <form name="bingo" data-mini="true">
         値：<input type="number" name="num" size="2">
-        <a href="#" id="bingo" data-role="button" data-inline="true"　ui-data-icon="star">Bingo!</a>
+        <a href="#"  id="bingo" data-role="button" data-inline="true"　ui-data-icon="star">Bingo!</a>
         <a href="#" id="return" data-role="button" data-inline="true">1つ戻る</a>
+        <a href="#popup" data-role="button" data-rel="popup" data-transition="pop" data-inline="true">Notice</a>
       </form>
     </div>
+    
+    <div id="popup" data-role="popup">
+      <div data-role="header">
+          <h1>通知</h1>
+      </div>
+     <div data-role="content">
+       <div id="display"></div>
+    </div>
+  </div>
  </div>
-	</body>
+</body>
 </html>
