@@ -1,0 +1,28 @@
+<html>
+ <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>LocalStorage</title>
+    <link rel="stylesheet" href="styles/jquery-mobile.css">
+    <script type="text/javascript" src="scripts/libs/jquery.js"></script>
+    <script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
+ 
+</head>
+
+	<body>
+		<div data-role="page" id="page1">
+			<div data-role="header">
+				<h1>ヘッダー</h1>
+			</div>
+			<div data-role="content">	
+				<p>リンクをクリックするとウィンドウ中央にポップアップが表示されます</p>
+				<p><a href="#popupBasic-popup" data-rel="popup" data-position-to="window">ポップアップ表示</a></p>
+			</div>
+			<div data-role="popup" id="popupBasic-popup">
+				<div data-role="content">	
+					<p>これがポップアップです</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

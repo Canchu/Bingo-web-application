@@ -21,7 +21,6 @@
             CheckBingo();
         });
 
-
         $(document).on("pageshow",function(){
           $("#bingo").on("tap",TurnBlack);
           $("#return").on("tap",Return);
@@ -29,7 +28,6 @@
 
         window.onload = function(){
           draw();
-          //drawNumber();
         }
         
         var imageData = new Array(); 
@@ -40,9 +38,8 @@
           }
           var ctx = canvas.getContext('2d');
           for(var i=0; i<localStorage.length-1; i++){
-                imageData[i] = ctx.createImageData(CardWidth,CardHeight);
+            imageData[i] = ctx.createImageData(CardWidth,CardHeight);
           }
-
           drawColor();
         }
 
@@ -76,7 +73,6 @@
                 }
               ctx.putImageData(imageData[i],10+(i%3)*(CardWidth+10),10+Math.floor(i/3)*(CardHeight+10));  
          }
-
          drawNumber();
        }
 
@@ -155,7 +151,6 @@
         }
       }
 
-  
       function TurnBlack(){
           var Value;
             var canvas = document.getElementById('canvas');
@@ -248,8 +243,7 @@
           var Tatecount =0;
           var Nanamecount1 =0;
           var Nanamecount2 =0;
-       function CheckBingo(){
-
+     function CheckBingo(){
             $('#display').empty();
             //横走査
         for(var i=0; i<localStorage.length-1; i++){
