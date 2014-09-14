@@ -18,8 +18,8 @@
            //}
         //} 
       }catch (PDOException $e){
-       //   print('Connection failed:'.$e -> getMessgae() );
-       //   die();
+          print('Connection failed:'.$e -> getMessgae() );
+          die();
       }
       $dbh = null;
   ?>

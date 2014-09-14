@@ -329,10 +329,10 @@
         Nanamecount2 = 0;
 
         if(pbingo){
-          $('#display').append((i + 1) + '番目のカードに<span style="color:red; font-weight:bold;">ビンゴ</span>が' + pbingo + '個' + 'あります。<br>');
+          $('#display').append('ID'+ Card[i].data[0][5] + ' のカードに<span style="color:red; font-weight:bold;">ビンゴ</span>が' + pbingo + '個' + 'あります。<br>');
         }
         if(preach){
-          $('#display').append((i + 1) + '番目のカードに<span style="color:orange; font-weight:bold;">リーチ</span>が' + preach + '個' + 'あります。<br>');
+          $('#display').append('ID'+ Card[i].data[0][5] + ' のカードに<span style="color:orange; font-weight:bold;">リーチ</span>が' + preach + '個' + 'あります。<br>');
         }
       }
        if(!($('#display span').length)){

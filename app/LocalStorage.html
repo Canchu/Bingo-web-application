@@ -1,5 +1,4 @@
 <!--オフライン・オンラインどちらもできるコードになっています。どちらの状況で利用するかで、コメントアウトをはずしたり、つけたりする位置がありますので、ご確認ください-->
-
 <html>
  <head>
     <meta charset="utf-8">
@@ -11,9 +10,14 @@
     <!--<script data-main="scripts/main" src="scripts/libs/require.js"></script> これがあるとなぜかポップアップが表示されない-->
    
      <script type="text/javascript">
-    
+      
+       var img = new Array();
       $(function(){
         load();
+          for(var i=0; i<75; i++){
+            img[i] = new Image();
+            img[i].src = ("images/"+ i +".png");
+      }
       });
    
     $(document).on("pageshow",function(){
@@ -72,26 +76,21 @@
       }
     }
 
-    var img = new Array();
     var id1;
     var id2;
     var Card = [];
+   
     function attention(){
-
       var canvas = document.getElementById("popcanvas");
       if(!canvas || !canvas.getContext){
                 return false;
       }
       var ctx = canvas.getContext('2d');
-
-      for(var i=0; i<75; i++){
-            img[i] = new Image();
-            img[i].src = ("images/"+ i +".png");
-      }
+  
       var key1 = document.getElementById("textkey1").value;
       var key2 = document.getElementById("textkey2").value;
-      /*オフライン作業はここのコメントアウトをはずす*/
-      //var numbers = document.getElementById("textdata").value;
+      /*オフライン作業のときはここのコメントアウトを消して有効に*/
+      //var numbers = document.getElementById("textdata").value;//ここけす
       id1 = parseInt(key1);
       id2 = parseInt(key2);
 
@@ -111,63 +110,63 @@
       canvas.width = 500;
       canvas.height= 180*( (id2-id1)/3+1);
       /* 以下、オフライン作業の際は、 "//*" のついている行をコメントアウトしてください */
-      var id ={}; //*
-      var numbers; //*
-      for( var i=0; i<=id2-id1; i++){
-        　　console.log(id1);
-          id['id1'] = id1+i; //*
-          Card[i] = new Object;
-
+      var numbers = new Array(); //*
+      var first = 0;  
+      for(var i = 0; i<=id2-id1; i++){
+         var id ={};  //*
+         var m = 0;   //*
+          id['id1'] = id1+i;  //*
+          Card[i] = new Object; 
           $.post("mysql.php",id,function(data){ //*
-             numbers = data;  //*
-          });   //*
-          setTimeout(function(){    //*
-             if(numbers != null){  //*
-                var stringData = numbers.split(',');
-                var intData = [
-                      [0,0,0,0,0,id1+i],
-                      [0,0,0,0,0,0],
-                      [0,0,100,0,0,0],
-                      [0,0,0,0,0,0],
-                      [0,0,0,0,0,0],];
-                var l=0;
-                for(var j=0; j<5; j++){
-                  for(var k=0; k<5; k++){
-                    if(j==2 && k==2){}
-                    else{
-                    intData[j][k] = parseInt(stringData[l]);
-                    l++;
+              numbers[m] = data;  //*
+              var stringData = (numbers[m]).split(',');
+              //console.log(stringData);
+              var intData = [
+                        [0,0,0,0,0,id1+m],
+                        [0,0,0,0,0,0],
+                        [0,0,100,0,0,0],
+                        [0,0,0,0,0,0],
+                        [0,0,0,0,0,0],];
+                    var l=0;
+                    for(var j=0; j<5; j++){
+                      for(var k=0; k<5; k++){
+                        if(j==2 && k==2){}
+                        else{
+                        intData[j][k] = parseInt(stringData[l]);
+                        l++;
+                        }
+                      }
                     }
-                  }
-                }
-                //i--;複数枚でまわしたときiの値がどうなるか？注意
-                ctx.font = "20px 'ＭＳ Ｐゴシック'";
-                Card[i].data = intData;
-                ctx.fillStyle="blue";
-                ctx.fillRect((i%3)*140,Math.floor(i/3)*180,130,150);
-                ctx.fillStyle="black";
-                ctx.fillText("ID:"+String(Card[i].data[0][5]),30+(i%3)*130,20+10*Math.floor(i/3)+Math.floor(i/3)*170);
-              } //*
-              else{ //*
-                i--;  //*
-                setTimeout(arguments.callee,100);   //*
-               }     //*
-          });     //*
-     }
-      img[74].onload=function(){
-              ctx.scale(0.1,0.1);
-              for(var i=0; i<=id2-id1; i++){
-                for(var j=0; j<5; j++){
-                  for(var k=0; k<5; k++){
-                    var num =Card[i].data[j][k];
-                    if(num == 100){
-                      num-=100;
-                    }
-                     ctx.drawImage(img[num],(50)+k*(250)+(130*10+100)*(i%3),(100+230)+j*(100+110)+Math.floor(i/3)*(170*10+100));
-                  }
-                }
+              if(first == 0){
+                  ctx.scale(0.1,0.1);
               }
-        }
+              ctx.font = "200px 'ＭＳ Ｐゴシック'";
+              Card[m].data = intData;
+              ctx.fillStyle="blue";
+              ctx.fillRect((m%3)*1400,Math.floor(m/3)*1800,1300,1500);
+              ctx.fillStyle="black";
+              ctx.fillText("ID:"+String(Card[m].data[0][5]),300+(m%3)*1300,200+100*Math.floor(m/3)+Math.floor(m/3)*1700);
+                
+              for(var j=0; j<5; j++){
+                  for(var k=0; k<5; k++){
+                      var num =Card[m].data[j][k];
+                      if(num == 100){
+                            num-=100;
+                      }
+                      ctx.drawImage(img[num],(50)+k*(250)+(130*10+100)*(m%3),(100+230)+j*(100+110)+Math.floor(m/3)*(170*10+100));
+                  }
+              }
+              first++;
+              m++;  //*
+          }); //*
+        //sleep();
+      }
+    }
+
+    function sleep(){
+       var time1 = new Date().getTime();
+        var time2 = new Date().getTime();
+        while((time2-time1) <100){time2 = new Date().getTime();}
     }
 
      function modify(){
@@ -239,7 +238,6 @@
         <form name="id" method = "post" data-mini="true">
          <p>ID：<input id="textkey1" size="5" type="number">
          <p>～ID：<input id="textkey2" size="5" type="number">
-         <!--オフライン作業はここのコメントをはずす-->
          <!--値：<input id="textdata" type="text" />--></p>
          <p align="left">
          <a href="#popup" id ="pop" data-role="button" data-rel="popup" data-transition="slidedown"  data-inline="true" >保存</a>
@@ -272,7 +270,7 @@
             修正後：<input id="correct" type="number" data-inline="true">
             <a href="#" id="definemod" data-role="button" class="ui-btn-inline">修正</a>
             <a href="LocalStorage.html"  rel="external" id="save" data-role="button" class="ui-btn-inline">OK</a>
-            <a href="LocalStorage.html" rel="external" id="back" data-role="button" class="ui-btn-inline">閉じる</a>
+            <a href="#"  data-rel ="back" id="back" data-role="button" class="ui-btn-inline">閉じる</a>
          </div>
       </div>
 
