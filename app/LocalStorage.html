@@ -78,14 +78,14 @@
     var id1;
     var id2;
     var Card = [];
-   
     function attention(){
       var canvas = document.getElementById("popcanvas");
       if(!canvas || !canvas.getContext){
                 return false;
       }
       var ctx = canvas.getContext('2d');
-  
+      var width = $(window).width();
+      var line = Math.floor(width/130)-1;
       var key1 = document.getElementById("textkey1").value;
       var key2 = document.getElementById("textkey2").value;
       //var numbers = document.getElementById("textdata").value;//ここけす
@@ -105,8 +105,8 @@
             id2 = tmp;
           }
       }
-      canvas.width = 500;
-      canvas.height= 180*( (id2-id1)/3+1);
+      canvas.width = width;
+      canvas.height= 180*( (id2-id1)/line+1);
       var numbers = new Array();
       var first = 0; 
       var id ={};
@@ -141,11 +141,10 @@
               }
               ctx.font = "200px 'ＭＳ Ｐゴシック'";
               Card[m].data = intData;
-              console.log(intData);
               ctx.fillStyle="blue";
-              ctx.fillRect((m%3)*1400,Math.floor(m/3)*1800,1300,1500);
+              ctx.fillRect((m%line)*1400,Math.floor(m/line)*1800,1300,1500);
               ctx.fillStyle="black";
-              ctx.fillText("ID:"+String(Card[m].data[0][5]),300+(m%3)*1300,200+100*Math.floor(m/3)+Math.floor(m/3)*1700);
+              ctx.fillText("ID:"+String(Card[m].data[0][5]),300+(m%line)*1300+(i%line)*100,200+100*Math.floor(m/line)+Math.floor(m/line)*1700);
                 
               for(var j=0; j<5; j++){
                   for(var k=0; k<5; k++){
@@ -153,7 +152,7 @@
                       if(num == 100){
                             num-=100;
                       }
-                      ctx.drawImage(img[num],(50)+k*(250)+(130*10+100)*(m%3),(100+230)+j*(100+110)+Math.floor(m/3)*(170*10+100));
+                      ctx.drawImage(img[num],(50)+k*(250)+(130*10+100)*(m%line),(100+230)+j*(100+110)+Math.floor(m/line)*(170*10+100));
                   }
               }
               first++;
