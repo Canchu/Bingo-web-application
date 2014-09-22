@@ -1,43 +1,51 @@
 <html>
- <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>About this</title>
-     <!--<link rel="stylesheet" href="styles/jquery-mobile.css">-->
-    <link rel="stylesheet" type="text/css" href="generated/jquery.mobile.flatui.min.css"/>
-    <script type="text/javascript" src="scripts/libs/jquery.js"></script>
-    <script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
-    <script data-main="scripts/main" src="scripts/libs/require.js"></script>
- </head>
- 	<body>
- 	<div data-role="page" id="staff" data-theme="e">	
- 		<div data-role="header" >
- 			<h1>About</h1>
- 			<a href="" data-rel="back">Back</a>
-    	</div>
-    	<div data-role="contents" class="ui-content">
-            <h3>How to use</h3>
-            <p>1.山口大学工学部生協で購入したビンゴカードのID番号をID入力画面で、フォームに入力してください。あなたのカードがアプリに登録されます。一度登録したカードは削除もできます。</p>
-            <p>2.登録したあなたのカードは、カード一覧画面で確認できます。</p>
-            <p>3.ビンゴ本番になったら、カード一覧画面で、ステージで読まれた数字をフォームに入力してください。もし間違えて入力した場合、5回まで元に戻すことができます。</p>
-            <p>4.ビンゴになったのカードは赤、リーチのカードは黄色に変わります。ビンゴしたカードがダブルビンゴのため、再びリーチになることもあります。</p>
-            <p>Let's Enjoy Bingo!</p>
-            <h3>Create Staff</h3>
- 			<h4> Fukushi Laboratory</h4>
- 			<p> Yuudai Tateishi</p>
- 			<p> Kenichi Sonoda</p>
- 			<p> Takeshi Sakai</p>
- 			<p> Souji Inohara</p>
- 			<p> Daiki Shimizu</p>
- 			<p> Kaworu Ochi</p>
- 			<p> Ayano Masaki</p>
- 			<h4>Special Thanks</h4>
- 			<p> Assoc Prof.Masaru Fukushi</p>
- 			<p> Tokiwa Festival 2014 Staff</p>
- 		</div>
- 		<div data-role="footer" >
- 		<p>Fukushi-Lab,2014,AllRightReceived.</p>
-    	</div>
- 	</div>
- 	</body>
- </html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>About this</title>
+        <link rel="stylesheet" href="styles/jquery-mobile.css">
+        <link rel="stylesheet" href="styles/Bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="styles/about-style.css"/>
+        <script type="text/javascript" src="scripts/libs/jquery.js"></script>
+        <script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
+        <script data-main="scripts/main" src="scripts/libs/require.js"></script>
+    </head>
+    <body>
+        <div data-role="page" id="staff" data-theme="z"> 
+            <div data-role="header" data-theme="z">
+                <h1>About</h1>
+                <a href="LocalStorage.html" data-rel="back" data-icon="arrow-l" data-iconpos="notext"></a>
+            </div>
+            <div data-role="contents" class="ui-content" data-theme="z">
+                <h2>How To Use</h2>
+                <ol>
+                    <li>山口大学工学部生協で購入したビンゴカード上部にあるNo.の番号を<a href="LocalStorage.html" rel="external">カード登録画面</a>内のフォームに入力してください。あなたのカードがアプリに登録されます。<br>
+                        登録したカードは削除することもできます。</li>
+                    <li>登録したカードは<a href="canvas.html" rel="external">カード一覧画面</a>で確認できます。</li>
+                    <li>ビンゴ本番では、<a href="canvas.html" rel="external">カード一覧画面</a>にて数字をフォームに入力し、”Bingo”ボタンを押してください。<br>
+                        数字を指定して”を戻す”ボタンを押すことで、指定した数字のみ入力が取り消されます。</li>
+                    <li>ビンゴになったカードは赤、リーチのカードは黄色に変わります。ビンゴしたカードが再びリーチになることもあります。</li>
+                </ol>
+                <h2>Create Staff</h2>
+                <h3>Fukushi Laboratory</h3>
+                <ul>
+                    <li>Takeshi Sakai</li>
+                    <li>Kenichi Sonoda</li>
+                    <li>Yuudai Tateishi</li>
+                    <li>Souji Inohara</li>
+                    <li>Kaworu Ochi</li>
+                    <li>Daiki Shimizu</li>
+                    <li>Ayano Masaki</li>
+                </ul>
+                <h3>Special Thanks</h3>
+                <ul>
+                    <li>Associate Professor Masaru Fukushi</li>
+                    <li>Tokiwa Festival 2014 Staff</li>
+                </ul>
+            </div>
+            <div data-role="footer" data-theme="z">
+                <small>2014 Fukushi-Lab. All rights reserved.</small>
+            </div>
+        </div>
+    </body>
+</html>

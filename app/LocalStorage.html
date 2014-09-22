@@ -3,14 +3,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>LocalStorage</title>
-    <!--<link rel="stylesheet" href="styles/jquery-mobile.css">-->
     <link rel="stylesheet" type="text/css" href="generated/jquery.mobile.flatui.css"/>
-    <link rel="stylesheet" type="text/css" href="identer.css"/>
+    <link rel="stylesheet" type="text/css" href="styles/identer.css"/>
+    <link rel="stylesheet" type="text/css" href="styles/cardview.css"/>
+    <link rel="stylesheet" href="styles/about-style.css">
     <script type="text/javascript" src="scripts/libs/jquery.js"></script>
     <script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
-    <!--<script data-main="scripts/main" src="scripts/libs/require.js"></script> これがあるとなぜかポップアップが表示されない-->
-   
-     <script type="text/javascript">
+    <script type="text/javascript">
       
        var img = new Array();
       $(function(){
@@ -51,7 +50,7 @@
 
     function viewStorage(){
       var _key = [];
-      var rows = parseInt($(window).width() / 40);
+      var rows = parseInt($(window).width() / 45);
       $('#list').empty();
       for(var i = 0; i < storage.length - 1; i++){
         _key.push(storage.key(i));
@@ -60,27 +59,21 @@
       for(var i = 0; i < _key.length; ){
         $('#list').append('<tr>');
         for(var j = 0; j < rows && i < _key.length; i++, j++){
-          $('#list:last').append('<td style="width:40px; text-align:right;">' + _key[i] + '</td>');
+          console.log(i);
+          console.log(j);
+          if( ( Math.floor(i/rows))%2 != 0){
+            $('#list:last').append('<td class="white" style="width:40px;  text-align:right;">' + _key[i] + '</td>');
+          }
+          else{
+            $('#list:last').append('<td class="green" style="width:40px;  text-align:right;">' + _key[i] + '</td>');
+          }
         }
         $('#list').append('</tr>');
       }
     }
  
     function load(){
-      var _key = [];
-      var rows = parseInt($(window).width() / 40);
-      $('#list').empty();
-      for(var i = 0; i < localStorage.length - 1; i++){
-        _key.push(localStorage.key(i));
-      }
-      Sort(_key);
-      for(var i = 0; i < _key.length; ){
-        $('#list').append('<tr>');
-        for(var j = 0; j < rows && i < _key.length; i++, j++){
-          $('#list:last').append('<td style="width:40px; text-align:right;">' + _key[i] + '</td>');
-        }
-        $('#list').append('</tr>');
-      }
+      viewStorage();
     }
 
     function Sort(array){
@@ -168,8 +161,8 @@
                   ctx.scale(0.1,0.1);
               }
               ctx.font = "200px 'ＭＳ Ｐゴシック'";
-              Card[i].data = intData;
-              ctx.fillStyle="blue";
+              Card[i].data  = intData;
+              ctx.fillStyle = "rgb(0,108,214)";
               ctx.fillRect((i%line)*1400,Math.floor(i/line)*1800,1300,1500);
               ctx.fillStyle="black";
               ctx.fillText("ID:"+String(Card[i].data[0][5]),300+(i%line)*1300+(i%line)*100,200+100*Math.floor(i/line)+Math.floor(i/line)*1700);
@@ -186,15 +179,7 @@
               first++;
              // m++;
           }
-        //  });
-        //sleep();
-      
-    }
-
-    function sleep(){
-       var time1 = new Date().getTime();
-        var time2 = new Date().getTime();
-        while((time2-time1) <100){time2 = new Date().getTime();}
+        //  }); 
     }
 
      function modify(){
@@ -255,37 +240,37 @@
   </head>
 
   <body>
-    <div data-role="page" id="page" data-theme ="d">
+    <div data-role="page" id="identer" data-theme ="d">
       <div data-role="header" class="ui-header" data-theme="b">
         <h1>ビンゴカードNo.入力</h1>
-        <a href ="canvas.html"  rel="external">カード一覧</a>
-        <a href ="about.html"  data-iconpos="none" data-icon="flat-plus">About</a>
+        <a href ="canvas.html" rel="external">カード一覧</a>
+        <a href ="about.html"  rel="external" data-iconpos="none" data-icon="flat-plus">About</a>
       </div>
 
       <div data-role="content" id="main" class="ui-content">
         <form name="id" method = "post" data-mini="true">
-        <p><img src="images/04-A.gif" width="40px" height="40px"/>あなたのビンゴカードのNo.を入力してください</p>
+        <p class="green">あなたのビンゴカードのNo.を入力してください</p>
          <p class="id">No.<input id="textkey1" size="5" type="number" class="form-field" data-role="none">
          ～No.<input id="textkey2" size="5" type="number" data-role="none" class="form-field"></p>
-         <!--<p><p class="id">値：<input id="textdata" type="text" data-role="none" class="form-field"></p>-->
+         <p><p class="id">値：<input id="textdata" type="text" data-role="none" class="form-field"></p>
          <a href="#popup" id ="pop" data-role="button" data-theme ="b" data-rel="popup" data-transition="slidedown"  data-inline="true" data-role="none">保存</a>
-         <p><img src="images/04-A.gif" width="40px" height="40px"/>削除したいビンゴカードのNo.を入力してください</p>
+         <p class="green">削除したいビンゴカードのNo.を入力してください</p>
          <p>削除No.<input id="deltextkey" class="form-field" type="number" data-inline="true" data-role="none"></p>
          <a href="#" id="delete" data-role="button" data-inline="true">削除</a></p>
          <a href="#" id="alldelete" data-role="button" data-inline="true">全て削除</a>
         </form>
-      <h4>入力履歴</h4>
+        <h4 class="green">入力履歴No.</h4>
         <table class="tagForList2">
-        <tr>
-        <th>No. </th>
-        </tr>
-        <tbody id="list">
-        </tbody>
+        <thead>
+            
+        </thead>
+          <tbody id="list"></tbody>
+      
         </table>
       </div>
 
       <div data-role="popup" id="popup" data-dismissible="false">
-          <div data-role="header" data-theme="d">
+          <div data-role="header" data-theme="b">
           <h3>確認</h3>
           </div>
           <div  data-role="content" class="ui-content">
@@ -308,7 +293,7 @@
       </div>
 
       <div data-role="footer" data-theme="b">
-       CopyRight:Fukushi-Lab.
+        2014 Fukushi-Lab. All rights reserved.
       </div>
   </div>
 
