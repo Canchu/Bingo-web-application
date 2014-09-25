@@ -1,3 +1,14 @@
+/*Written by AM SI DS*/
+/***今まで発見されたバグや操作性で気になった点
+　　Android
+
+
+  iOS
+  APIキーボードが出てきたとき画面が飛んでしまって酔う
+  連続してビンゴの数字を入力して、履歴に同じ数字が連絡してしまう
+  iPad(Retina)でcanvasの横幅の関係かカードが表示されないときがある
+
+***/
 <html>
 	<head>
 		<meta charset="utf-8">
@@ -12,114 +23,61 @@
   	<script type ="text/javascript">
 
        var storage = localStorage;
+        /*ブラウザでLocalStorageが使えるかどうかの判断*/
+        if (typeof localStorage == 'undefined') {
+          document.write("<p>お使いのブラウザではWeb Storageが使えません。</p>");
+        }
+        else {
+          storage = localStorage;
+        }
+
   		 var Card    = [];
        var reach   = [];
        var bingo   = [];
+       var img = new Array();
        var CardWidth  = 130;
        var CardHeight = 150;
-       
-       $( function() {  
+
+      　/*ページが読み込まれるごとに、LocalStorageの内容をとりだし、履歴をLocalStorageに格納、ビンゴかどうかのチェック判定を行う*/
+       $( function() {
+            for(var i=0; i<=75; i++){
+                img[i] = new Image();
+                img[i].src = ("images/"+ i +".png");
+            }
             getObjects();
             pushStrgHist();
             CheckBingo();
-        });
+      　});
 
-        $(document).on("pageshow",function(){
-          $("#bingo").on("tap",TurnBlack);
-          $("#return").on("tap",Return);
-        });
+      /*各ボタンタップ時に起動する関数*/
+       $(document).on("pageshow",function(){
+          $("#bingo").on("tap",TurnBlack); //bingo　ボタンが押された時、TurnBlack関数
+          $("#return").on("tap",Return);//を戻す　ボタンが押された時、Return関数
+       });
 
+       /*画面準備がととのったら、カードの描画を行う*/
         window.onload = function(){
           draw();
         }
-        
-        var imageData = new Array(); 
-        function draw(){
-          var canvas = document.getElementById('canvas');
-          if(!canvas || !canvas.getContext){
-                return false;
-          }
-          var ctx = canvas.getContext('2d');
-          for(var i=0; i<localStorage.length-1; i++){
-            imageData[i] = ctx.createImageData(CardWidth,CardHeight);
-          }
-          drawColor();
-        }
-
-       function drawColor(){
-          var canvas = document.getElementById('canvas');
-          if(!canvas || !canvas.getContext){
-                return false;
-          }
-          var ctx = canvas.getContext('2d');
-          var width = $(window).width();
-     	  var line = Math.floor(width/CardWidth)-1;
-         for(var i=0; i<localStorage.length-1; i++){
-                for (var j=0; j<imageData[i].width*imageData[i].height*4; j+=4){
-                  if(reach[i]==2){
-                   imageData[i].data[j+0] = 204;
-                   imageData[i].data[j+1] = 13;
-                   imageData[i].data[j+2] = 0;
-                   imageData[i].data[j+3] = 255;
-                  }
-                  else if(reach[i]==0){
-                    imageData[i].data[j+0] = 0;
-                    imageData[i].data[j+1] = 108;
-                    imageData[i].data[j+2] = 214;
-                    imageData[i].data[j+3] = 255;
-                  }
-                  else if(reach[i]==1){
-                    imageData[i].data[j+0] = 239;
-                    imageData[i].data[j+1] = 252;
-                    imageData[i].data[j+2] = 0;
-                    imageData[i].data[j+3] = 255;
-                  }
-                }
-              ctx.putImageData(imageData[i],10+(i%line)*(CardWidth+10),10+Math.floor(i/line)*(CardHeight+10));  
-         }
-         drawNumber();
-       }
-
-      var c = 0;
-      var img = new Array();
-      function drawNumber(){
-          c++;
-          var canvas = document.getElementById('canvas');
-             if(!canvas || !canvas.getContext){
-                return false;
-              }
-          var ctx = canvas.getContext('2d');
-          for(var i=0; i<=75; i++){
-                img[i] = new Image();
-                img[i].src = ("images/"+ i +".png");
-          }
-          var width = $(window).width();
-          var line = Math.floor(width/CardWidth)-1;
-
-          if(c==1){
-            ctx.scale(0.1,0.1);
-          }
-          img[74].onload=function(){
-              for(var i=0; i<localStorage.length-1; i++){
-                for(var j=0; j<5; j++){
-                  for(var k=0; k<5; k++){
-                    num =Card[i].data[j][k];
-                    if(num < 100){
-                     ctx.drawImage(img[num],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%line),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/line)*(CardHeight*10+100));
-                   }
-                   else{
-                       ctx.drawImage(img[0],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%line),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/line)*(CardHeight*10+100));
-                   }
-                  }
-                }
-              }
-          }
-          ctx.font = "200px 'ＭＳ Ｐゴシック'";
-          for(var i=0; i<localStorage.length-1; i++){
-            ctx.fillText("ID:"+String(Card[i].data[0][5]),400+(i%line)*(CardWidth)*10+(i%line)*100,300+100*Math.floor(i/line)+10*Math.floor(i/line)*(CardHeight));
-          }
+      　/*Cardの内容をLocalStorageに保存*/
+    function SaveStorage(){
+      for(var i=0; i<localStorage.length-1; i++){
+        var key = Card[i].data[0][5];
+        var json_value = JSON.stringify(Card[i].data);
+        storage.setItem(key, json_value);
       }
-
+    }
+    
+       /*canvasを使用する際に用いる*/
+    　function getCanvas(){
+        var canvas = document.getElementById("canvas");
+        if(!canvas || !canvas.getContext){
+                return false;
+        }
+        return canvas;
+      }
+      
+      /*LocalStorageから、IDごとに二次元配列のデータをCardに格納する*/
       function getObjects() {
             var i = 0;
             var j = 0;
@@ -137,7 +95,8 @@
             Sort();
       }
 
-      function Sort(){//Using Bubble Sort
+      /*Cardの内容をID昇順にバブルソート*/
+      function Sort(){
         var length = localStorage.length-1;
         var tmp;
         var swap_time = 0;
@@ -157,35 +116,110 @@
         }
       }
 
+      /*カードのオブジェクトを作成する*/
+        var imageData = new Array(); 
+        function draw(){
+          var canvas = getCanvas();
+          var ctx = canvas.getContext('2d');
+          for(var i=0; i<localStorage.length-1; i++){
+            imageData[i] = ctx.createImageData(CardWidth,CardHeight);
+          }
+          drawColor();
+        }
+
+      　/*カードのオブジェクトに色をつける*/
+       function drawColor(){
+          var canvas = getCanvas();
+          var ctx = canvas.getContext('2d');
+          var width = $(window).width();
+     	 　　 var line = Math.floor(width/CardWidth)-1;
+         for(var i=0; i<localStorage.length-1; i++){
+                for (var j=0; j<imageData[i].width*imageData[i].height*4; j+=4){
+                  if(reach[i]==2){ //bingo
+                    ChangeColor(i,j,204,13,0,255);
+                  }
+                  else if(reach[i]==0){ //nothing
+                    ChangeColor(i,j,0,108,214,255);
+                  }
+                  else if(reach[i]==1){ //reach
+                    ChangeColor(i,j,239,252,0,255);
+                  }
+                }
+              ctx.putImageData(imageData[i],10+(i%line)*(CardWidth+10),10+Math.floor(i/line)*(CardHeight+10));  
+         }
+         drawNumber();
+       }
+
+       /*カードの色の指定*/
+      function ChangeColor(i,j,r,g,b,a){
+         imageData[i].data[j+0] = r;
+         imageData[i].data[j+1] = g;
+         imageData[i].data[j+2] = b;
+         imageData[i].data[j+3] = a;
+      }
+
+      /*75までの数字画像とIDを描画する*/
+      var first = 0;
+      function drawNumber(){
+          first++;
+          var canvas = getCanvas();
+          var ctx = canvas.getContext('2d');
+          var width = $(window).width();
+          var line = Math.floor(width/CardWidth)-1;
+
+          if(first==1){
+            ctx.scale(0.1,0.1);
+          }
+          ctx.font = "200px 'ＭＳ Ｐゴシック'";
+          for(var i=0; i<localStorage.length-1; i++){
+               ctx.fillText("ID:"+String(Card[i].data[0][5]),400+(i%line)*(CardWidth)*10+(i%line)*100,300+100*Math.floor(i/line)+10*Math.floor(i/line)*(CardHeight));
+                for(var j=0; j<5; j++){
+                  for(var k=0; k<5; k++){
+                    num =Card[i].data[j][k];
+                    if(num < 100){
+                      drawNumImage(ctx,line,i,j,k,num);
+                   }
+                   else{
+                      drawNumImage(ctx,line,i,j,k,0);
+                   }
+                  }
+                }
+          }
+      }
+
+       /*数字画像を表示する*/
+      function drawNumImage(ctx,line,i,j,k,num){
+         ctx.drawImage(img[num],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%line),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/line)*(CardHeight*10+100));
+      }
+
+      /*Bingo!ボタンが押された時の挙動*/
       function TurnBlack(){
           var Value;
           var width = $(window).width();
           var line = Math.floor(width/CardWidth)-1;
-          var canvas = document.getElementById('canvas');
-             if(!canvas || !canvas.getContext){
-                return false;
-              }
-              var ctx = canvas.getContext('2d');
-              Value = parseInt(document.bingo.num.value);
-              for(var i=0; i<localStorage.length-1; i++){
-                for(var j=0; j<5; j++){
-                  for(var k=0; k<5; k++){
+          var canvas = getCanvas();
+          var ctx = canvas.getContext('2d');
+          Value = parseInt(document.bingo.num.value);
+          for(var i=0; i<localStorage.length-1; i++){
+              for(var j=0; j<5; j++){
+                 for(var k=0; k<5; k++){
                     if(Card[i].data[j][k] == Value){
                       Card[i].data[j][k] +=100;
-                      ctx.drawImage(img[0],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%line),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/line)*(CardHeight*10+100));
+                      drawNumImage(ctx,line,i,j,k,0);
                       break;
                     }
-                  }
                 }
-              } 
-            AddHistory(Value);
-            SaveStorage();
-            CheckBingo();
-            drawColor();
+              }
+           } 
+          　AddHistory(Value);
+          　SaveStorage();
+          　CheckBingo();
+          　drawColor();
       }
 
-      var his = JSON.parse(localStorage.getItem("history"));
+      /*入力された数字を、入力履歴リストに追加*/
       function AddHistory(Value){
+        var his = JSON.parse(localStorage.getItem("history"));
         var optItem = '';
         his.push(Value);
         optItem += '<option value="'+ his[his.length-1] + '">' +his[his.length-1] + '</option>'; 
@@ -195,7 +229,44 @@
         storage.setItem("history", JSON.stringify(his));
       }
 
-      function pushStrgHist(){
+      /*もどるボタンがおされたときの挙動。表示を元にもどす*/
+      function Return(){
+      　　var canvas = getCanvas();
+        var ctx = canvas.getContext('2d');
+        var width = $(window).width();
+        var line = Math.floor(width/CardWidth)-1;
+        var ReValue = parseInt($('#history').val());
+        for(var i=0; i<localStorage.length-1; i++){
+          for(var j=0; j<5; j++){
+            for(var k=0; k<5; k++){
+              if(Card[i].data[j][k] - 100 == ReValue){
+                Card[i].data[j][k]-=100;
+                drawNumImage(ctx,line,i,j,k,0);
+              }
+            }
+          }
+        }
+        RemoveHistory(ReValue);
+        SaveStorage();
+        CheckBingo();
+        drawColor();
+      }
+
+      /*入力履歴の一括削除*/
+      function RemoveHistory(ReValue){
+        var his = JSON.parse(localStorage.getItem("history"));
+        for(var i=0; i<his.length; i++){
+          if(his[i] == ReValue){
+           his[i] = 0;
+           break;
+          }
+        }
+        $('#history').children().remove();
+        pushStrgHist(his);
+      }
+
+      /*historyの内容の確認、入力履歴リストの整形、内容をLocalStorageに格納*/
+      function pushStrgHist(his){
         var key = "history";
         var json_value = JSON.stringify(his);
         var optItem = '';
@@ -214,45 +285,11 @@
         storage.setItem(key, json_value);
       }
 
-      function RemoveHistory(ReValue){
-        for(var i=0; i<his.length; i++){
-          if(his[i] == ReValue){
-           his[i] = 0;
-          }
-        }
-        $('#history').children().remove();
-        pushStrgHist();
-      }
-
-      function Return(){
-        var canvas = document.getElementById('canvas');
-        if(!canvas || !canvas.getContext){
-            return false;
-        }
-        var ctx = canvas.getContext('2d');
-        var width = $(window).width();
-        var line = Math.floor(width/CardWidth)-1;
-        var ReValue = parseInt($('#history').val());
-        for(var i=0; i<localStorage.length-1; i++){
-          for(var j=0; j<5; j++){
-            for(var k=0; k<5; k++){
-              if(Card[i].data[j][k] -100 == ReValue){
-                Card[i].data[j][k]-=100;
-                ctx.drawImage(img[ReValue],(CardWidth+20)+k*(CardWidth+120)+(CardWidth*10+100)*(i%line),(CardHeight+160)+j*(CardHeight+110)+Math.floor(i/line)*(CardHeight*10+100));
-              }
-            }
-          }
-        }
-        RemoveHistory(ReValue);
-        SaveStorage();
-        CheckBingo();
-        drawColor();
-      }
-
-          var Yokocount =0;
-          var Tatecount =0;
-          var Nanamecount1 =0;
-          var Nanamecount2 =0;
+      /*ビンゴかどうかのチェック、フラグたて*/
+      var Yokocount =0;
+      var Tatecount =0;
+      var Nanamecount1 =0;
+      var Nanamecount2 =0;
      function CheckBingo(){
         var flag = 0;
         $('#display').empty();
@@ -270,12 +307,12 @@
               if( Yokocount == 5){
                 reach[i] = 2;
                 pbingo++;
-                console.log (i+"YokoBingo");
+                //console.log (i+"YokoBingo");
               }
               if(Yokocount == 4){
                 reach[i]=1;
                 preach++;
-                console.log (i+"YokoReach");
+                //console.log (i+"YokoReach");
               }
              Yokocount = 0;
             }
@@ -290,12 +327,12 @@
               if( Tatecount == 5){
                 reach[i] = 2;
                 pbingo++;
-                console.log (i+"TateBingo");
+                //console.log (i+"TateBingo");
               }
              if(Tatecount == 4){
                 reach[i] = 1;
                 preach++;
-                console.log (i+"TateReach");
+                //console.log (i+"TateReach");
               }
               Tatecount = 0;
             }
@@ -308,12 +345,12 @@
             if( Nanamecount1 == 5){
               reach[i] = 2;
               pbingo++;
-              console.log (i+"NaNameBingo1");
+              //console.log (i+"NaNameBingo1");
             }
             if(Nanamecount1 == 4){
                reach[i] = 1;
                preach++;
-              console.log (i+"NaNameReach1");
+              //console.log (i+"NaNameReach1");
             }
           }
           Nanamecount1 = 0;
@@ -329,16 +366,21 @@
             if(Nanamecount2 == 5){
               reach[i] = 2;
               pbingo++;
-              console.log (i+"NaNameBingo2");
+              //console.log (i+"NaNameBingo2");
             }
             if(Nanamecount2 == 4){
               reach[i] = 1;
               preach++;
-              console.log (i+"NaNameReach2");
+              //console.log (i+"NaNameReach2");
             }
-        }
+         }
         Nanamecount2 = 0;
+        notice(i,pbingo,preach,flag);
+    }
+  }
 
+  /*いのっちポップアップのしくみ*/
+  function notice(i,pbingo,preach,flag){
         if(pbingo){
           $('#display').append('ID' + Card[i].data[0][5] + ' のカードに<span style="color:red; font-weight:bold;">ビンゴ</span>が' + pbingo + '個' + 'あります。<br>');
         }
@@ -351,28 +393,19 @@
           Card[i].preach = preach;
           flag = 1;
         }
-      }
 
-       if(!($('#display span').length)){
+        if(!($('#display span').length)){
          $('#display').append('ビンゴ・リーチはありません。<br>');
-       }
+        }
 
-      if(flag == 1){
+        if(flag == 1){
          $('[href="#popup"]').attr('id', 'target');
          $('#target').on('tap', function(){
            $('#target').removeAttr('id');
          });
-       }
+        }
   }
-
-  function SaveStorage(){
-    for(var i=0; i<localStorage.length-1; i++){
-        var key = Card[i].data[0][5];
-          //valueをJSONへ変換
-        var json_value = JSON.stringify(Card[i].data);
-        storage.setItem(key, json_value);
-    }
-  }
+      
 	</script>
 	</head>
 	<body>

@@ -1,3 +1,12 @@
+/*Written by AM SI*/
+/***今まで発見されたバグや操作性で気になった点
+　　Android
+  登録ボタンがなかなか反応しない、連続して保存ボタンを押すとカード表示がおかしくなるときがある
+  
+  iOS
+  APIキーボードが出てきたとき画面が飛んでしまって酔う
+
+***/
 <html>
  <head>
     <meta charset="utf-8">
@@ -11,30 +20,47 @@
     <script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
     <script type="text/javascript">
       
-       var img = new Array();
-      $(function(){
-        load();
-          for(var i=0; i<=75; i++){
-            img[i] = new Image();
-            img[i].src = ("images/"+ i +".png");
-      }
-      });
-   
-    $(document).on("pageshow",function(){
-        $("#save").on("tap",PushlocalStrg);
-        $("#delete").on("tap",removeStorage);
-        $("#alldelete").on("tap",removeallStorage);
-        $("#pop").on("tap",attention);
-        $("#definemod").on("tap",modify);
-    });
-
+      var img = new Array(); //75個の数字画像
+      var storage;    
+      /*ブラウザでLocalStorageが使えるかどうかの判断*/
       if (typeof localStorage == 'undefined') {
         document.write("<p>お使いのブラウザではWeb Storageが使えません。</p>");
       }
       else {
-        var storage = localStorage;
+        storage = localStorage;
       }
-    
+
+       /*ページが読み込まれるごとに、75までの数字の画像がロードされる&入力履歴が整形される*/
+      $(function(){
+        viewStorage();
+        for(var i=0; i<=75; i++){
+            img[i] = new Image();
+            img[i].src = ("images/"+ i +".png");
+        }
+      });
+   
+     /*各ボタンタップ時に起動する関数*/
+     $(document).on("pageshow",function(){
+        $("#save").on("tap",PushlocalStrg);  //登録　ボタンが押された時PushlocalStrg関数
+        $("#delete").on("tap",removeStorage);　//削除　ボタンが押された時removeStorage関数
+        $("#alldelete").on("tap",removeallStorage); //全て削除　ボタンが押された時removeallStorage関数
+        $("#pop").on("tap",attention);  //保存　ボタンが押された時attention関数
+        $("#definemod").on("tap",modify); //修正　ボタンが押された時modify関数
+     });
+
+    /*LocalStorageにIDごとにカードのデータを二次元配列でに保存する*/
+    function PushlocalStrg(){
+        for(var i=0; i<=id2-id1; i++){
+          var key = Card[i].data[0][5];
+          var json_value = JSON.stringify(Card[i].data);
+          storage.setItem(key, json_value);
+          alert("ID"+key+"番のカードを登録しました。")
+        }
+        var history = new Array();
+        storage.setItem("history",JSON.stringify(history));
+    }
+
+    /*入力されたIDのLocalStorageの内容を削除する*/
     function removeStorage() {
       var key = document.getElementById("deltextkey").value;
       storage.removeItem(key);
@@ -43,11 +69,13 @@
       viewStorage();
     }
 
+    /*LocalStorageの内容をすべて削除する*/
     function removeallStorage() {
       storage.clear();
       viewStorage();
     }
 
+    /*入力履歴の表示*/
     function viewStorage(){
       var _key = [];
       var rows = parseInt($(window).width() / 45);
@@ -71,11 +99,8 @@
         $('#list').append('</tr>');
       }
     }
- 
-    function load(){
-      viewStorage();
-    }
-
+  
+    /*バブルソート*/
     function Sort(array){
       var length = array.length;
       var tmp;
@@ -96,20 +121,22 @@
       }
     }
 
-    var id1;
-    var id2;
-    var Card = [];
-    function attention(){
+    /*canvasを使用する際に用いる*/
+    function getCanvas(){
       var canvas = document.getElementById("popcanvas");
       if(!canvas || !canvas.getContext){
                 return false;
       }
-      var ctx = canvas.getContext('2d');
-      var width = $(window).width();
-      var line = Math.floor(width/130);
+      return canvas;
+    }
+
+    /*入力されたid1とid2を認識し、必要があればスワップする*/
+    var id1;
+    var id2;
+    var Card = [];
+    function attention(){
       var key1 = document.getElementById("textkey1").value;
       var key2 = document.getElementById("textkey2").value;
-      var numbers = document.getElementById("textdata").value;//ここけす
       id1 = parseInt(key1);
       id2 = parseInt(key2);
 
@@ -126,8 +153,19 @@
             id2 = tmp;
           }
       }
+      CatchNumber();
+    }
+
+    /*入力されたid1とid2をもとに、DBに接続する*/
+    function CatchNumber(){
+      var canvas = getCanvas();
+      var ctx = canvas.getContext('2d');
+      var width = $(window).width();
+      var line = Math.floor(width/130);
       canvas.width = width;
       canvas.height= 180*( (id2-id1)/line+1);
+
+      var numbers = document.getElementById("textdata").value;  //*オフライン
       //var numbers = new Array();
       var first = 0; 
       //var id ={};
@@ -140,7 +178,7 @@
               Card[i] = new Object;
      //       numbers[m] = numbers_group[i];
      //       var stringData = (numbers[m]).split(',');
-              var stringData = (numbers).split(',');
+              var stringData = (numbers).split(',');  //*オフライン
               var intData = [
                         [0,0,0,0,0,id1+i],
                         [0,0,0,0,0,0],
@@ -157,44 +195,63 @@
                         }
                       }
                     }
-              if(first == 0){
-                  ctx.scale(0.1,0.1);
-              }
-              ctx.font = "200px 'ＭＳ Ｐゴシック'";
-              Card[i].data  = intData;
-              ctx.fillStyle = "rgb(0,108,214)";
-              ctx.fillRect((i%line)*1400,Math.floor(i/line)*1800,1300,1500);
-              ctx.fillStyle="black";
-              ctx.fillText("ID:"+String(Card[i].data[0][5]),300+(i%line)*1300+(i%line)*100,200+100*Math.floor(i/line)+Math.floor(i/line)*1700);
-                
-              for(var j=0; j<5; j++){
-                  for(var k=0; k<5; k++){
-                      var num =Card[i].data[j][k];
-                      if(num == 100){
-                            num-=100;
-                      }
-                      ctx.drawImage(img[num],(50)+k*(250)+(130*10+100)*(i%line),(100+230)+j*(100+110)+Math.floor(i/line)*(170*10+100));
-                  }
-              }
+              draw(i,first,intData,line,ctx);
               first++;
              // m++;
           }
         //  }); 
     }
 
-     function modify(){
-       var canvas = document.getElementById("popcanvas");
-       if(!canvas || !canvas.getContext){
-                return false;
-       }
-        var ctx = canvas.getContext('2d');
-        var cardid = parseInt(document.getElementById("modifyid").value);
-     　  var before = parseInt(document.getElementById("modify").value);
-        var after  = parseInt(document.getElementById("correct").value);
-        var error = false;
+    /*ビンゴカードの描画*/
+    function draw(i,first,intData,line,ctx){   
+      if(first == 0){
+          ctx.scale(0.1,0.1);
+      }
+      ctx.font = "200px 'ＭＳ Ｐゴシック'";
+      Card[i].data  = intData;
+      ctx.fillStyle = "rgb(0,108,214)";
+      ctx.fillRect((i%line)*1400,Math.floor(i/line)*1800,1300,1500);
+      ctx.fillStyle="black";
+      ctx.fillText("ID:"+String(Card[i].data[0][5]),300+(i%line)*1300+(i%line)*100,200+100*Math.floor(i/line)+Math.floor(i/line)*1700);
+                
+      for(var j=0; j<5; j++){
+          for(var k=0; k<5; k++){
+                var num =Card[i].data[j][k];
+                if(num == 100){
+                            num-=100;
+                }
+                ctx.drawImage(img[num],(50)+k*(250)+(130*10+100)*(i%line),(100+230)+j*(100+110)+Math.floor(i/line)*(170*10+100));
+          }
+      }
+    }
 
+    /*修正ボタンが押された時の挙動*/
+    function modify(){
+       var canvas = getCanvas();
+       var ctx = canvas.getContext('2d');
+       var cardid = parseInt(document.getElementById("modifyid").value);
+     　 var before = parseInt(document.getElementById("modify").value);
+       var after  = parseInt(document.getElementById("correct").value);
+       var line = Math.floor($(window).width()/130);
         
-        if(cardid >id2 || cardid<id1){
+       if(!error(cardid,after)){
+            cardid = cardid-id1;
+              for(var j=0; j<5; j++){
+                  for(var k=0; k<5; k++){
+                      if(Card[cardid].data[j][k] == before){
+                          Card[cardid].data[j][k] = after;
+                          ctx.drawImage(img[after],(50)+k*(250)+(130*10+100)*((cardid)%line),(100+230)+j*(100+110)+Math.floor((cardid)/line)*(170*10+100));
+                      break;
+                      }
+                  }
+              }
+        }
+     }
+
+    /*修正希望内容のエラーチェック*/
+    function error(cardid,after){
+      var error = false;
+       if(cardid >id2 || cardid<id1){
             error = true;
             alert("そのIDのカードはありません");
         }
@@ -209,31 +266,7 @@
             }
           }
         }
-
-        if(!error){
-            cardid = cardid-id1;
-              for(var j=0; j<5; j++){
-                  for(var k=0; k<5; k++){
-                      if(Card[cardid].data[j][k] == before){
-                          Card[cardid].data[j][k] = after;
-                          ctx.drawImage(img[after],(50)+k*(250)+(130*10+100)*((cardid)%3),(100+230)+j*(100+110)+Math.floor((cardid)/3)*(170*10+100));
-                      break;
-                      }
-                  }
-              }
-        }
-     }
-
-    function PushlocalStrg(){
-        for(var i=0; i<=id2-id1; i++){
-          var key = Card[i].data[0][5];
-          //valueをJSONへ変換
-          var json_value = JSON.stringify(Card[i].data);
-          storage.setItem(key, json_value);
-          alert("ID"+key+"番のカードを登録しました。")
-        }
-        var history = new Array();
-        storage.setItem("history",JSON.stringify(history));
+        return error;
     }
 
     </script>
@@ -295,9 +328,7 @@
       <div data-role="footer" data-theme="b">
         2014 Fukushi-Lab. All rights reserved.
       </div>
-  </div>
-
-  
+  </div> 
   </div>
  </body> 
 </html>
