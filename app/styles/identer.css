@@ -3,7 +3,6 @@
 }
 
 .ui-header{
-	color : #00CC8B;
 }
 
 .form-container {
@@ -24,9 +23,7 @@
    font-family: 'Helvetica Neue',Helvetica,sans-serif;
    text-decoration: none;
    vertical-align: middle;
-   min-width:350px;
-   padding:5px;
-   width:350px;
+   padding:2px;
  }
 
 .form-field {

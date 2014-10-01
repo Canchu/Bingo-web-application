@@ -1,21 +1,11 @@
-/*Written by AM SI*/
-/***今まで発見されたバグや操作性で気になった点
-　　Android
-  登録ボタンがなかなか反応しない、連続して保存ボタンを押すとカード表示がおかしくなるときがある
-  
-  iOS
-  APIキーボードが出てきたとき画面が飛んでしまって酔う
 
-***/
 <html>
  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>LocalStorage</title>
-    <link rel="stylesheet" type="text/css" href="generated/jquery.mobile.flatui.css"/>
     <link rel="stylesheet" type="text/css" href="styles/identer.css"/>
-    <link rel="stylesheet" type="text/css" href="styles/cardview.css"/>
-    <link rel="stylesheet" href="styles/about-style.css">
+    <link rel="stylesheet" type="text/css" href="generated/jquery.mobile.flatui.css"/>
     <script type="text/javascript" src="scripts/libs/jquery.js"></script>
     <script type="text/javascript" src="scripts/libs/jquery.mobile-1.3.2.js"></script>
     <script type="text/javascript">
@@ -50,14 +40,16 @@
 
     /*LocalStorageにIDごとにカードのデータを二次元配列でに保存する*/
     function PushlocalStrg(){
+        if(localStorage.length < 1){
+          var history = new Array();
+          storage.setItem("history",JSON.stringify(history));
+        }
         for(var i=0; i<=id2-id1; i++){
           var key = Card[i].data[0][5];
           var json_value = JSON.stringify(Card[i].data);
           storage.setItem(key, json_value);
-          alert("ID"+key+"番のカードを登録しました。")
         }
-        var history = new Array();
-        storage.setItem("history",JSON.stringify(history));
+        alert("カードを登録しました。");
     }
 
     /*入力されたIDのLocalStorageの内容を削除する*/
@@ -80,21 +72,21 @@
       var _key = [];
       var rows = parseInt($(window).width() / 45);
       $('#list').empty();
-      for(var i = 0; i < storage.length - 1; i++){
-        _key.push(storage.key(i));
+      for(var i = 0; i < storage.length; i++){
+        if(! (isNaN( storage.key(i) ))){
+          _key.push(storage.key(i));
+        }
       }
       Sort(_key);
       for(var i = 0; i < _key.length; ){
         $('#list').append('<tr>');
         for(var j = 0; j < rows && i < _key.length; i++, j++){
-          console.log(i);
-          console.log(j);
-          if( ( Math.floor(i/rows))%2 != 0){
-            $('#list:last').append('<td class="white" style="width:40px;  text-align:right;">' + _key[i] + '</td>');
-          }
-          else{
-            $('#list:last').append('<td class="green" style="width:40px;  text-align:right;">' + _key[i] + '</td>');
-          }
+            if( ( Math.floor(i/rows))%2 != 0){
+              $('#list:last').append('<td class="white" style="width:40px;  text-align:right;">' + _key[i] + '</td>');
+            }
+            else{
+              $('#list:last').append('<td class="green" style="width:40px;  text-align:right;">' + _key[i] + '</td>');
+            }
         }
         $('#list').append('</tr>');
       }
@@ -165,20 +157,20 @@
       canvas.width = width;
       canvas.height= 180*( (id2-id1)/line+1);
 
-      var numbers = document.getElementById("textdata").value;  //*オフライン
-      //var numbers = new Array();
+      //var numbers = document.getElementById("textdata").value;  //*オフライン
+      var numbers = new Array();
       var first = 0; 
-      //var id ={};
-      //var m = 0;
-      //id['id1'] = id1;
-      //id['id2'] = id2;
-      //$.post("mysql.php",id,function(data){
-      //    var numbers_group = data.split(':');
+      var id ={};
+      var m = 0;
+      id['id1'] = id1;
+      id['id2'] = id2;
+      $.post("mysql.php",id,function(data){
+          var numbers_group = data.split(':');
           for(var i = 0; i<=id2-id1; i++){
               Card[i] = new Object;
-     //       numbers[m] = numbers_group[i];
-     //       var stringData = (numbers[m]).split(',');
-              var stringData = (numbers).split(',');  //*オフライン
+              numbers[m] = numbers_group[i];
+              var stringData = (numbers[m]).split(',');
+       //       var stringData = (numbers).split(',');  //*オフライン
               var intData = [
                         [0,0,0,0,0,id1+i],
                         [0,0,0,0,0,0],
@@ -197,9 +189,9 @@
                     }
               draw(i,first,intData,line,ctx);
               first++;
-             // m++;
+              m++;
           }
-        //  }); 
+          }); 
     }
 
     /*ビンゴカードの描画*/
@@ -230,11 +222,11 @@
        var canvas = getCanvas();
        var ctx = canvas.getContext('2d');
        var cardid = parseInt(document.getElementById("modifyid").value);
-     　 var before = parseInt(document.getElementById("modify").value);
+     　var before = parseInt(document.getElementById("modify").value);
        var after  = parseInt(document.getElementById("correct").value);
        var line = Math.floor($(window).width()/130);
         
-       if(!error(cardid,after)){
+       if(!error(cardid,before,after)){
             cardid = cardid-id1;
               for(var j=0; j<5; j++){
                   for(var k=0; k<5; k++){
@@ -249,8 +241,12 @@
      }
 
     /*修正希望内容のエラーチェック*/
-    function error(cardid,after){
+    function error(cardid,before,after){
       var error = false;
+       if(before > 75 || before < 1 || after > 75 || before < 1 || isNaN(before) || isNaN(after)){
+          error = true;
+          alert("no number on bingocards!")
+       }
        if(cardid >id2 || cardid<id1){
             error = true;
             alert("そのIDのカードはありません");
@@ -285,7 +281,7 @@
         <p class="green">あなたのビンゴカードのNo.を入力してください</p>
          <p class="id">No.<input id="textkey1" size="5" type="number" class="form-field" data-role="none">
          ～No.<input id="textkey2" size="5" type="number" data-role="none" class="form-field"></p>
-         <p><p class="id">値：<input id="textdata" type="text" data-role="none" class="form-field"></p>
+         <!--<p><p class="id">値：<input id="textdata" type="text" data-role="none" class="form-field"></p>-->
          <a href="#popup" id ="pop" data-role="button" data-theme ="b" data-rel="popup" data-transition="slidedown"  data-inline="true" data-role="none">保存</a>
          <p class="green">削除したいビンゴカードのNo.を入力してください</p>
          <p>削除No.<input id="deltextkey" class="form-field" type="number" data-inline="true" data-role="none"></p>
@@ -307,17 +303,17 @@
           <h3>確認</h3>
           </div>
           <div  data-role="content" class="ui-content">
-           <form class="form-container">
-           <p><img src="images/04-A.gif" width="30px" height="30px"/>この並びで、間違いないですか？</p>
-           <p>間違えがあれば、お手数ですが、「修正カードNo.」に修正したいカードのIDを、「修正前」に修正したい数字を、「修正後」に正しい数字を入力して、修正ボタンを押してください</p>
-           </form>
-           <canvas id ="popcanvas">
-            Canvasに対応したブラウザを使って下さい。
-           </canvas>
+          <form class="form-container">
+            <p><img src="images/04-A.gif" width="30px" height="30px"/>この並びで、間違いないですか？</p>
+            <p>間違えがあれば、お手数ですが、「修正カードNo.」に修正したいカードのNo.を、「修正前」に修正したい数字を、「修正後」に正しい数字を入力して、修正ボタンを押してください</p>
+          </form>
+          <canvas id ="popcanvas">
+              Canvasに対応したブラウザを使って下さい。
+          </canvas>
            <form class="form-container">
            <p>修正カードNo.：<input id="modifyid" class="form-field" type="number" data-inline="true" data-role="none"></p>
            <p>修正前：<input id="modify" class="form-field" type="number" data-inline="true" data-role="none">
-          修正後：<input id="correct" class="form-field" type="number" data-inline="true" data-role="none"></p>
+           修正後：<input id="correct" class="form-field" type="number" data-inline="true" data-role="none"></p>
             <a href="#" id="definemod" data-role="button" class="ui-btn-inline">修正</a>
             <a href="LocalStorage.html"  rel="external" id="save" data-role="button" class="ui-btn-inline">登録</a>
             <a href="#"  data-rel ="back" id="back" data-role="button" class="ui-btn-inline">閉じる</a>
