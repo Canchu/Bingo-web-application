@@ -2,7 +2,7 @@
 
 #動作環境・ローカルでの動作方法
 XAMPPを使ってApache起動・
-C://xampp/htdocs内にこのリポジトリをまるごと直置き
+C://xampp/htdocs内にこのリポジトリのapp以下ををまるごと直置き
 http://localhost/LocalStorage.htmlでビンゴカード番号入力画面がでるはず
 
 #起動後イメージ・操作方法はこちら
